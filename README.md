@@ -23,6 +23,6 @@ A robust C# .NET library implementing the Result pattern for elegant error handl
 
 **⭐ Star this repository if you find it useful!**
 
-Made with ❤️ by Rafa Eslava
+Made with ❤️ by [Rafa Eslava](https://github.com/reslava)
 
 </div>
