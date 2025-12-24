@@ -1,4 +1,4 @@
-># REslava.Result
+# REslava.Result
 
  🚧 **Under Construction** - This library is currently in active development
 
