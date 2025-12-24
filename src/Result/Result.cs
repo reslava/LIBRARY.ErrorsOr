@@ -9,7 +9,7 @@ public readonly partial record struct Result<TValue> : IResult<TValue>
     
     public Result ()
     {
-        throw new InvalidOperationException ("Use Factory instead of default constructor of ErrorsOr<TValue>.");
+        throw new InvalidOperationException ("Use Factory methods instead of default constructor.");
     }
     private Result (Error error)
     {
@@ -39,17 +39,14 @@ public readonly partial record struct Result<TValue> : IResult<TValue>
     [MemberNotNullWhen (false, nameof (_value))]
     public bool IsError => _errors is not null;
 
-    public List<Error> Errors => IsError ? _errors : throw new InvalidOperationException ("The Errors property cannot be accessed when no errors have been recorded. Check IsError before accessing Errors.");
+    public List<Error> Errors => IsError ? _errors : throw new InvalidOperationException ("No errors found. Check IsError before.");
 
     public TValue Value
     {
         get
         {
-            if (IsError)
-            {
-                throw new InvalidOperationException ("The Value property is invalid because erros has ocurred. _" +
-                    "Check IsError before.");
-            }
+            if (IsError)        
+                throw new InvalidOperationException ("Errors has ocurred. Check IsError before.");            
 
             return _value;
         }
@@ -62,7 +59,7 @@ public readonly partial record struct Result<TValue> : IResult<TValue>
             if (!IsError)
                 throw new InvalidOperationException ("No errors found. Check IsError before.");
 
-            return Error.NoErrors();
+            return Errors[0];
         }
     }
 }

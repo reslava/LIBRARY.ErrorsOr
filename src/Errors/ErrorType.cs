@@ -7,6 +7,5 @@ public enum ErrorType
     NotFound,
     Unauthorized,
     Forbidden,
-    Unexpected,
-    NoErrors
+    Unexpected    
 }
