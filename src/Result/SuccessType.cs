@@ -1,4 +1,4 @@
-﻿namespace Result;
+﻿namespace REslava.Result;
 
 // Success types
 public enum SuccessType

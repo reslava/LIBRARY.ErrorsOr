@@ -2,7 +2,8 @@
 
  🚧 **Under Construction** - This library is currently in active development
 
->A very simple, clean, and robust C# .NET library that implements the Result pattern for elegant error handling that minimises the use of exceptions.
+>A very simple, clean, and robust C# .NET library that implements the Result pattern for elegant error handling that minimises the use of exceptions. 
+>Handle success/failure/reason info along with an optional value.
 
 <div align="center">
 

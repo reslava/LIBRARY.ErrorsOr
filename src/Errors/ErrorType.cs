@@ -1,4 +1,4 @@
-﻿namespace Result;
+﻿namespace REslava.Result;
 
 // Error types
 public enum ErrorType

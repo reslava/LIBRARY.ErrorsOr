@@ -1,15 +1,14 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Result;
+﻿namespace REslava.Result;
+using System.Diagnostics.CodeAnalysis;
 
 public class Result
 {
     public bool IsSuccess { get; }
-    public bool IsFailue => !IsSuccess;
+    public bool IsFailure => !IsSuccess;
     public List<Error> Errors = [Error.None];
     public SuccessType SuccessType = SuccessType.Success;
 
-    public Result (bool isSuccess, Error error)
+    internal Result (bool isSuccess, Error error)
     {
         if (isSuccess && error != Error.None ||
             !isSuccess && error == Error.None)
@@ -48,13 +47,18 @@ public class Result
         new (default, false, error);
 }
 
-
 public class Result<TValue> : Result
 {
     private readonly TValue? _value;
 
-    public Result (TValue? value, bool isSuccess, Error error)
+    internal Result (TValue? value, bool isSuccess, Error error)
         : base (isSuccess, error)
+    {
+        _value = value;
+    }
+
+    internal Result (TValue? value, bool isSuccess, List<Error> errors)
+        : base (isSuccess, errors)
     {
         _value = value;
     }
@@ -65,7 +69,7 @@ public class Result<TValue> : Result
         : throw new InvalidOperationException ("The value of a failure result can't be accessed.");
 
     public static implicit operator Result<TValue> (TValue? value) =>
-        value is not null ? Success (value) : Failure<TValue> (Error.NullValue);
+        value is not null ? Success (value) : Failure<TValue> (Error.NullValue());
 
     public static Result<TValue> ValidationFailure (Error error) =>
         new (default, false, error);
