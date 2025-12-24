@@ -2,70 +2,71 @@
 
 namespace Result;
 
-public readonly partial record struct Result<TValue> : IResult<TValue>
-{    
-    private readonly TValue? _value = default;
-    private readonly List<Error>? _errors = null;
-    private readonly SuccessType _successType = SuccessType.Success;
+public class Result
+{
+    public bool IsSuccess { get; }
+    public bool IsFailue => !IsSuccess;
+    public List<Error> Errors = [Error.None];
+    public SuccessType SuccessType = SuccessType.Success;
 
-    public SuccessType SuccessType
+    public Result (bool isSuccess, Error error)
     {
-        get { return _successType; } 
-    }
+        if (isSuccess && error != Error.None ||
+            !isSuccess && error == Error.None)
+        {
+            throw new ArgumentException ("Invalid error", nameof (error));
+        }
 
-    public Result ()
-    {        
-        throw new InvalidOperationException ("Use Factory methods instead of default constructor.");
+        IsSuccess = isSuccess;
+        Errors = [error];
     }
-    private Result (Error error)
-    {
-        _errors = [error];
-    }
-
-    private Result (List<Error> errors)
+    public Result (bool isSuccess, List<Error> errors)
     {
         ArgumentNullException.ThrowIfNull (errors);
-        
-        if (errors.Count == 0)        
-            throw new ArgumentException ("Cannot create an ErrorOr<TValue> from an empty collection of errors. Provide at least one error.", nameof (errors));        
+        if (errors.Count == 0)
+            throw new ArgumentException ("Cannot create a Result from an empty collection of errors. _" +
+                "Provide at least one error.", nameof (errors));
+        if (isSuccess && errors[0] != Error.None ||
+            !isSuccess && errors[0] == Error.None)
+        {
+            throw new ArgumentException ("Invalid error", nameof (errors));
+        }
 
-        _errors = errors;
+        IsSuccess = isSuccess;
+        Errors = errors;
     }
+    public Error Error => Errors[0];
 
-    private Result (TValue value)
+    public static Result Success () => new (true, Error.None);
+    
+    public static Result Failure (Error error) => new (false, error);
+
+    public static Result<TValue> Success<TValue> (TValue value) =>
+        new (value, true, Error.None);   
+
+    public static Result<TValue> Failure<TValue> (Error error) =>
+        new (default, false, error);
+}
+
+
+public class Result<TValue> : Result
+{
+    private readonly TValue? _value;
+
+    public Result (TValue? value, bool isSuccess, Error error)
+        : base (isSuccess, error)
     {
-        ArgumentNullException.ThrowIfNull(value);
-        
         _value = value;
     }
 
-    [MemberNotNullWhen (true, nameof (_errors))]
-    [MemberNotNullWhen (true, nameof (Errors))]
-    [MemberNotNullWhen (false, nameof (Value))]
-    [MemberNotNullWhen (false, nameof (_value))]
-    public bool IsError => _errors is not null;
+    [NotNull]
+    public TValue Value => IsSuccess
+        ? _value!
+        : throw new InvalidOperationException ("The value of a failure result can't be accessed.");
 
-    public List<Error> Errors => IsError ? _errors : throw new InvalidOperationException ("No errors found. Check IsError before.");
+    public static implicit operator Result<TValue> (TValue? value) =>
+        value is not null ? Success (value) : Failure<TValue> (Error.NullValue);
 
-    public TValue Value
-    {
-        get
-        {
-            if (IsError)        
-                throw new InvalidOperationException ("Errors has ocurred. Check IsError before.");            
-
-            return _value;
-        }
-    }
-
-    public Error FirstError 
-    {
-        get
-        {
-            if (!IsError)
-                throw new InvalidOperationException ("No errors found. Check IsError before.");
-
-            return Errors[0];
-        }
-    }
+    public static Result<TValue> ValidationFailure (Error error) =>
+        new (default, false, error);
 }
